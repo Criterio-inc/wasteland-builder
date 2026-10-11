@@ -43,7 +43,13 @@ def main(argv=None):
     if not 200 <= size <= 3000:
         raise SystemExit('Size must be between 200 and 3000 metres; large areas take long to build and stream.')
 
-    hits = search(args.query)
+    try:
+        hits = search(args.query)
+    except RuntimeError as e:
+        if not args.center:
+            raise
+        say(f'Nominatim unreachable ({e}); using --center as given.')
+        hits = []
     if not hits and not args.center:
         raise SystemExit(f'Nominatim found nothing for "{args.query}". Try adding the country or region.')
     if hits:
